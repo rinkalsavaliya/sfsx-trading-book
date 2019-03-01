@@ -98,6 +98,11 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {}
+  onKeydown(event) {
+    if (event.key === 'Enter') {
+      this.addTrade();
+    }
+  }
 
   /**
   * add a trade to the trade book, and process it
@@ -118,7 +123,6 @@ export class DashboardComponent implements OnInit {
   * this function processes the trade
   */
   processTrade(tradeBook: Array<TradeSchema>, oppTradeBook: Array<TradeSchema>, oppReOrderType: string, tradeType: string) {
-    console.log(this.trade, 'trade');
     /*
     * is oppsite side trade book is blank, or
     * for buy trade, latest opp side trade's price is greater than newly arrived trade's price, then add the trade to the trade book
@@ -129,7 +133,7 @@ export class DashboardComponent implements OnInit {
       (tradeType === 'buy' && oppTradeBook[0].price > this.trade.price) ||
       (tradeType === 'sell' && oppTradeBook[0].price < this.trade.price)
     ) {
-      this.addRestedTrade(tradeBook, this.trade, tradeType);
+      tradeBook.push(this.trade);
       this.reOrderTrades(tradeBook, oppReOrderType);
     } else {
       // else, the MUST be executed
@@ -144,90 +148,67 @@ export class DashboardComponent implements OnInit {
         trade.shares += remainingShares;
         this.trade.shares -= oppTradeBook[0].shares;
 
+        oppTradeBook.shift();
         // is remainingShares is less than 0, then the extra shares will be added to the book
         if (remainingShares < 0) {
-          this.addRestedTrade(tradeBook, this.trade, tradeType);
-          this.reOrderTrades(tradeBook, oppReOrderType);
+          if (
+            oppTradeBook.length !== 0 &&
+            (
+              (tradeType === 'buy' && oppTradeBook[0].price <= this.trade.price) ||
+              (tradeType === 'sell' && oppTradeBook[0].price >= this.trade.price)
+            )
+          ) {
+            this.processTrade(tradeBook, oppTradeBook, oppReOrderType, tradeType);
+          } else {
+            tradeBook.push(this.trade);
+            this.reOrderTrades(tradeBook, oppReOrderType);
+          }
         }
 
         // remove rested order from the opposite side book
-        this.removeRestedTrade(oppTradeBook, tradeType);
       } else {
         /*
         * if remainingShares is greater than 0, then the arrived order will get executed, for the requested number of shares
         * and we have to modify the order book, as the requested number of shares will be deducted from the top of the book's trade
         */
-        this.modifyChartAndTradingBook(oppTradeBook, this.trade);
+        oppTradeBook[0].shares -= trade.shares;
       }
       // push the trade to trading log, as the trade MUST be execute
       this.tradingLog.push(trade);
     }
+    this.reOrderGraph();
   }
 
 
   /*
-  * this function adds one trade to the trade book (be it buy side book or sell side book)
-  * it modifies the graph data accordingly
+  * reorder graph data, after each trade is processed
   */
-  addRestedTrade(tradeBook: Array<TradeSchema>, trade: TradeSchema, tradeType: string) {
-    const graphIndex = (tradeType === 'buy') ? 0 : 1;
+  reOrderGraph() {
     this.isGraphLoading = true;
-    tradeBook.push(trade);
-    // if given price is not available in totalPrices, then add price to it, and add one element in graphData
-    if (!this.totalPrices[trade.price]) {
-      this.totalPrices[trade.price] = { buy: 0, sell: 0 };
-      this.totalPrices[trade.price][tradeType] = trade.shares;
-      this.chartLabels.push(trade.price.toString());
-      this.graphData[graphIndex].data.push(trade.shares);
-      this.graphData[1 - graphIndex].data.push(0);
-    } else {
-      // else, just modify graphData
-      const index = this.chartLabels.indexOf(trade.price.toString());
-      this.totalPrices[trade.price][tradeType] += trade.shares;
-      this.graphData[graphIndex].data[index] += trade.shares;
-    }
-    setTimeout(() => {
-      this.isGraphLoading = false;
+    this.graphData = [
+      { data: [], label: 'buy shares' },
+      { data: [], label: 'sell shares' }
+    ];
+    this.chartLabels = [];
+
+    this.allTickers.forEach((ticker) => {
+      this.buyTradingBook[ticker].forEach((trade) => {
+        if (!this.chartLabels.includes(trade.price.toString())) {
+          this.chartLabels.push(trade.price.toString());
+          this.graphData[0].data.push(0);
+        }
+        const index = this.chartLabels.indexOf(trade.price.toString());
+        this.graphData[0].data[index] += trade.shares;
+      });
+      this.buyTradingBook[ticker].forEach((trade) => {
+        if (!this.chartLabels.includes(trade.price.toString())) {
+          this.chartLabels.push(trade.price.toString());
+          this.graphData[1].data.push(0);
+        }
+        const index = this.chartLabels.indexOf(trade.price.toString());
+        this.graphData[1].data[index] += trade.shares;
+      });
     });
-  }
-
-  /*
-  * this function removes the rested trade from the trade book, and it modifies the graph data accordingly
-  */
-  removeRestedTrade(tradeBook: Array<TradeSchema>, tradeType: string) {
-    const graphIndex = tradeType === 'buy' ? 0 : 1;
-    this.isGraphLoading = true;
-    // modify totalPrices
-    this.totalPrices[tradeBook[0].price.toString()][graphIndex] -= tradeBook[0].shares;
-    console.log(this.totalPrices, 'price');
-    // if totalPrices[trade_price] = 0, remove given graph data for given price
-    if (this.totalPrices[tradeBook[0].price.toString()][graphIndex] === 0 && this.totalPrices[tradeBook[0].price.toString()][1 - graphIndex] === 0) {
-      const index = this.chartLabels.indexOf(tradeBook[0].price.toString());
-      this.graphData[0].data.splice(index, 1);
-      this.graphData[1].data.splice(index, 1);
-      this.chartLabels.splice(index, 1);
-      delete this.totalPrices[tradeBook[0].price.toString()];
-    }
-    tradeBook.shift();
-    setTimeout(() => {
-      this.isGraphLoading = false;
-    });
-  }
-
-
-  /*
-  * function which modifies the trading book, and the chart, in case of partial execution of the trade
-  */
-  modifyChartAndTradingBook(tradeBook: Array<TradeSchema>, trade: TradeSchema) {
-    const tradeType = tradeBook[0].side;
-    const graphIndex = tradeType === 'buy' ? 0 : 1;
-    this.isGraphLoading = true;
-    // partial execution is done, so the top of the book's trades are modified
-    tradeBook[0].shares -= trade.shares;
-    // modify the graph data
-    this.totalPrices[tradeBook[0].price.toString()][tradeType] -= trade.shares;
-    const index = this.chartLabels.indexOf(tradeBook[0].price.toString());
-    this.graphData[graphIndex].data[index] = tradeBook[0].shares;
 
     setTimeout(() => {
       this.isGraphLoading = false;

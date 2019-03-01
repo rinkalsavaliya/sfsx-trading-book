@@ -10,19 +10,19 @@
 
     <fieldset class="form-group">
       <label>Trader</label>
-      <input type="text" class="form-control" [(ngModel)]="trade.trader">
+      <input (keydown)="onKeydown($event)" type="text" class="form-control" [(ngModel)]="trade.trader">
       <p *ngIf="tradeValidationErrors.trader" class="error">{{ tradeValidationErrors.trader }}</p>
     </fieldset>
 
     <fieldset class="form-group">
       <label>Price</label>
-      <input type="number" class="form-control" [(ngModel)]="trade.price">
+      <input (keydown)="onKeydown($event)" type="number" class="form-control" [(ngModel)]="trade.price">
       <p *ngIf="tradeValidationErrors.price" class="error">{{ tradeValidationErrors.price }}</p>
     </fieldset>
 
     <fieldset class="form-group">
       <label>Total shares</label>
-      <input type="number" class="form-control" [(ngModel)]="trade.shares">
+      <input (keydown)="onKeydown($event)" type="number" class="form-control" [(ngModel)]="trade.shares">
       <p *ngIf="tradeValidationErrors.shares" class="error">{{ tradeValidationErrors.shares }}</p>
     </fieldset>
 
