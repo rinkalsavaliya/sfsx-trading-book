@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit {
   */
   public buyTradingBook: TradingBookSchama = {};
   public sellTradingBook: TradingBookSchama = {};
-  // object to handle all trade tradeValidationErrors
+  // object to handle all trade validation errors
   public tradeValidationErrors: Errors = {};
   public isGraphLoading = false;
   constructor() {
@@ -136,10 +136,11 @@ export class DashboardComponent implements OnInit {
         price: this.trade.price, shares: this.trade.shares,
         ticker: this.trade.ticker, timestamp: new Date().toLocaleString()
       };
+      // consider the bigger price while executing trade
       if (oppTradeBook[0].price > this.trade.price) {
         trade.price = oppTradeBook[0].price;
       }
-      // remainingShares - is rested order's shared - arrived order's trades
+      // remainingShares - is ((rested order's shared) - (arrived order's trades))
       const remainingShares = oppTradeBook[0].shares - this.trade.shares;
       // is remainingShares is less than or equal to zero, that means the rested order will be removed from the book
       if (remainingShares <= 0) {
@@ -148,6 +149,7 @@ export class DashboardComponent implements OnInit {
 
         oppTradeBook.shift();
         // is remainingShares is less than 0, then the extra shares will be added to the book
+        // call processTrade recursively, to check if any trade is available after the execution
         if (remainingShares < 0) {
           if (
             oppTradeBook.length !== 0 &&
