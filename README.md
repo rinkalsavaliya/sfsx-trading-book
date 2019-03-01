@@ -25,6 +25,15 @@ please check code comments inside the modules and components.
 
 the structure is self explanatory.
 
+in the UI, you can see a form to add a trade, where you've to select ticker, fill the trader name, order price, number of Shares and select order side (buy/sell).
+in **resting buy trades** and **resting sell trades**, you can see **ALL** trades, which are rested in the book.
+
+in *resting buy trades*, you'll the orders in **descending** order of the *price* of each trade,
+
+whereas, in *resting sell trades*, you'll the orders in **ascending** order of the *price* of each trade.
+
+In **Trading Log** section, you'll see the executed trades, once they get executed.
+
 
 ## Deployment
 install docker in your machine

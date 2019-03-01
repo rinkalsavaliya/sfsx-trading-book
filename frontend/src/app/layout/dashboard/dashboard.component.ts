@@ -23,7 +23,7 @@ export class DashboardComponent implements OnInit {
   public trade: TradeSchema = {
     ticker: this.allTickers[0],
     trader: '',
-    side: 'buy'
+    side: 'sell'
   } as TradeSchema;
 
   // declare and initiaze graph dtaa

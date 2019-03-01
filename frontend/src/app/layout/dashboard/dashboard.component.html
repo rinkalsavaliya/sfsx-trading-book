@@ -9,7 +9,7 @@
     </fieldset>
 
     <fieldset class="form-group">
-      <label>Trader</label>
+      <label>Trader name</label>
       <input (keydown)="onKeydown($event)" type="text" class="form-control" [(ngModel)]="trade.trader">
       <p *ngIf="tradeValidationErrors.trader" class="error">{{ tradeValidationErrors.trader }}</p>
     </fieldset>
@@ -34,7 +34,7 @@
       <p *ngIf="tradeValidationErrors.side" class="error">{{ tradeValidationErrors.side }}</p>
     </fieldset>
 
-    <button (click)="addTrade()" class="btn btn-primary">Save</button>
+    <button (click)="addTrade()" class="btn btn-primary">Add order</button>
     <button type="button" (click)="resetTrade()" class="btn btn-danger margin-left-10">Reset</button>
   </div>
 
