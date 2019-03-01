@@ -13,11 +13,26 @@ Install Node JS in your machine.
 
 *please use node >= 8*
 
-After you have installed Node JS, run `npm install` from the `frontend` folder
+Install dependencies and Start the application
+go to the `frontend` folder
+
+After you have installed Node JS, run `npm install`
+
 To start the application, run `npm start`
 
-### project modules
-please check comments inside the modules and components.
+### Project modules
+please check code comments inside the modules and components.
+
 the structure is self explanatory.
 
+
 ## Deployment
+install docker in your machine
+
+build the docker image
+
+> docker build . -t sfsx
+
+run the image
+
+> docker run -d -p 3000:3000 --name sfsx sfsx

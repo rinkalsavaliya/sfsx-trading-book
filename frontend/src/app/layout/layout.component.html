@@ -1,0 +1,11 @@
+<!-- Common for all pages -->
+
+<!-- Main container, which will contain all child components -->
+<section class="main-container">
+  <!-- Show App Loader if any child component is loading -->
+  <app-loader *ngIf="isContentLoading"></app-loader>
+  <!-- Router outlet to redirect request to child component -->
+  <div class="main-content">
+    <router-outlet *ngIf="!isContentLoading"></router-outlet>
+  </div>
+</section>

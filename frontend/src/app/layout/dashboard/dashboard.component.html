@@ -1,0 +1,117 @@
+<div class="col-lg-12">
+  <div class="col-lg-2">
+    <fieldset class="form-group">
+      <label>SFSX</label>
+      <select class="ui secondary button" [(ngModel)]="trade.ticker">
+        <option *ngFor="let ticker of allTickers" value="{{ ticker }}">{{ ticker }}</option>
+      </select>
+      <p *ngIf="tradeValidationErrors.ticker" class="error">{{ tradeValidationErrors.ticker }}</p>
+    </fieldset>
+
+    <fieldset class="form-group">
+      <label>Trader</label>
+      <input type="text" class="form-control" [(ngModel)]="trade.trader">
+      <p *ngIf="tradeValidationErrors.trader" class="error">{{ tradeValidationErrors.trader }}</p>
+    </fieldset>
+
+    <fieldset class="form-group">
+      <label>Price</label>
+      <input type="number" class="form-control" [(ngModel)]="trade.price">
+      <p *ngIf="tradeValidationErrors.price" class="error">{{ tradeValidationErrors.price }}</p>
+    </fieldset>
+
+    <fieldset class="form-group">
+      <label>Total shares</label>
+      <input type="number" class="form-control" [(ngModel)]="trade.shares">
+      <p *ngIf="tradeValidationErrors.shares" class="error">{{ tradeValidationErrors.shares }}</p>
+    </fieldset>
+
+    <fieldset class="form-group">
+      <label>Side</label>
+      <select class="ui secondary button" [(ngModel)]="trade.side">
+        <option value="buy">Buy</option>
+        <option value="sell">Sell</option>
+      </select>
+      <p *ngIf="tradeValidationErrors.side" class="error">{{ tradeValidationErrors.side }}</p>
+    </fieldset>
+
+    <button (click)="addTrade()" class="ui button">Save</button>
+    <button type="button" (click)="resetTrade()" class="ui negative button">Reset</button>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="row">
+      <div class="card mb-3" *ngIf="!isGraphLoading">
+        <div class="card-block">
+          <div class="col-lg-12 col-md-12">
+            <div class="chart-contanier">
+              <canvas baseChart height="100px" [datasets]="graphData" [labels]="chartLabels" [chartType]="'bar'">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row margin-top-100">
+      <div class="col-lg-6">
+        <p class="heading">Buy trades</p>
+        <table class="table table-hover margin-top-20">
+          <thead>
+            <th> Trader </th>
+            <th> Ticker </th>
+            <th> Price </th>
+            <th> Shares </th>
+          </thead>
+          <tbody *ngFor="let ticker of allTickers">
+            <tr *ngFor="let trade of buyTradingBook[ticker]">
+              <td>{{ trade.trader }}</td>
+              <td>{{ trade.ticker }}</td>
+              <td>{{ trade.price }}</td>
+              <td>{{ trade.shares }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-lg-6">
+        <p class="heading">Sell trades</p>
+        <table class="table table-hover margin-top-20">
+          <thead>
+            <th> Trader </th>
+            <th> Ticker </th>
+            <th> Price </th>
+            <th> Shares </th>
+          </thead>
+          <tbody *ngFor="let ticker of allTickers">
+            <tr *ngFor="let trade of sellTradingBook[ticker]">
+              <td>{{ trade.trader }}</td>
+              <td>{{ trade.ticker }}</td>
+              <td>{{ trade.price }}</td>
+              <td>{{ trade.shares }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <p class="heading">Trading Log</p>
+    <table class="table table-hover margin-top-20">
+      <thead>
+        <th> Timestamp </th>
+        <th> Ticker </th>
+        <th> Price </th>
+        <th> Shares </th>
+      </thead>
+      <tbody>
+        <tr *ngFor="let trade of tradingLog">
+          <td>{{ trade.timestamp }}</td>
+          <td>{{ trade.ticker }}</td>
+          <td>{{ trade.price }}</td>
+          <td>{{ trade.shares }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
