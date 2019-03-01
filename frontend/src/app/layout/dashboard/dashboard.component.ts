@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TradeSchema, GraphDataSchema, TradingLogSchema, Errors, ErrorRules, TradingBookSchama } from './dashboard.interface';
 
-
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -18,6 +17,7 @@ export class DashboardComponent implements OnInit {
   public allTickers: Array<string> = ['ZGRO', 'FB', 'ORCL', 'GOOG'];
   // declare and initiaze available sides
   public sides: Array<string> = ['buy', 'sell'];
+  public side = false;
   // declare and initiaze trade dtaa
   public trade: TradeSchema = {
     ticker: this.allTickers[0],
@@ -49,18 +49,6 @@ export class DashboardComponent implements OnInit {
   public sellTradingBook: TradingBookSchama = {};
   // object to handle all trade tradeValidationErrors
   public tradeValidationErrors: Errors = {};
-
-  /*
-  * maintain an object to hold all unique prices, with number of shares for that price
-  * totalPrices = {
-  *  '101.43': {
-  *   'buy': 300 // there are 300 total buy shares in trade book for price = 101.43, and so on
-  *   'sell': 200 // there are 300 total sell shares in trade book for price = 101.43, and so on
-  * }
-  * }
-  *
-  */
-  public totalPrices: { [key: string]: { buy: number, sell: number } } = {};
   public chartOptions: object = {
     scales: {
       /**
@@ -69,7 +57,7 @@ export class DashboardComponent implements OnInit {
       yAxes: [{
         type: 'logarithmic',
         ticks: {
-          callback: (tick: number, index: number, ticks: Array<number>) => {
+          callback: (tick: number) => {
             return Number(tick.toString());
           }
         },
@@ -98,7 +86,12 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {}
-  onKeydown(event) {
+
+  /**
+  * detect *enter* event on any input
+  */
+  onKeydown(event: KeyboardEvent = null) {
+    this.tradeValidationErrors = {};
     if (event.key === 'Enter') {
       this.addTrade();
     }
@@ -109,6 +102,7 @@ export class DashboardComponent implements OnInit {
   * if it meets the eligibility criteria to get executed, execute it, be it partially or fully
   */
   addTrade() {
+    this.trade.side = (this.side) ? 'sell' : 'buy';
     if (this.validateTrade()) {
       if (this.trade.side === 'buy') {
         this.processTrade(this.buyTradingBook[this.trade.ticker], this.sellTradingBook[this.trade.ticker], 'max', 'buy');
@@ -193,18 +187,12 @@ export class DashboardComponent implements OnInit {
 
     this.allTickers.forEach((ticker) => {
       this.buyTradingBook[ticker].forEach((trade) => {
-        if (!this.chartLabels.includes(trade.price.toString())) {
-          this.chartLabels.push(trade.price.toString());
-          this.graphData[0].data.push(0);
-        }
+        this.initiazeChartLabel(trade);
         const index = this.chartLabels.indexOf(trade.price.toString());
         this.graphData[0].data[index] += trade.shares;
       });
-      this.buyTradingBook[ticker].forEach((trade) => {
-        if (!this.chartLabels.includes(trade.price.toString())) {
-          this.chartLabels.push(trade.price.toString());
-          this.graphData[1].data.push(0);
-        }
+      this.sellTradingBook[ticker].forEach((trade) => {
+        this.initiazeChartLabel(trade);
         const index = this.chartLabels.indexOf(trade.price.toString());
         this.graphData[1].data[index] += trade.shares;
       });
@@ -213,6 +201,14 @@ export class DashboardComponent implements OnInit {
     setTimeout(() => {
       this.isGraphLoading = false;
     });
+  }
+
+  initiazeChartLabel(trade: TradeSchema) {
+    if (!this.chartLabels.includes(trade.price.toString())) {
+      this.chartLabels.push(trade.price.toString());
+      this.graphData[0].data.push(0);
+      this.graphData[1].data.push(0);
+    }
   }
 
 
@@ -237,6 +233,7 @@ export class DashboardComponent implements OnInit {
   * function to reset the trade after trade is executed, or if user clicks on reste button
   */
   resetTrade() {
+    this.tradeValidationErrors = {};
     this.trade = {
       ticker: this.trade.ticker,
       trader: '',

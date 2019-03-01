@@ -27,16 +27,15 @@
     </fieldset>
 
     <fieldset class="form-group">
-      <label>Side</label>
-      <select class="ui secondary button" [(ngModel)]="trade.side">
-        <option value="buy">Buy</option>
-        <option value="sell">Sell</option>
-      </select>
+      <label>Side</label><br/>
+        buy
+        <ui-switch [(ngModel)]="side"></ui-switch>
+        sell
       <p *ngIf="tradeValidationErrors.side" class="error">{{ tradeValidationErrors.side }}</p>
     </fieldset>
 
-    <button (click)="addTrade()" class="ui button">Save</button>
-    <button type="button" (click)="resetTrade()" class="ui negative button">Reset</button>
+    <button (click)="addTrade()" class="btn btn-primary">Save</button>
+    <button type="button" (click)="resetTrade()" class="btn btn-danger margin-left-10">Reset</button>
   </div>
 
   <div class="col-lg-5">
