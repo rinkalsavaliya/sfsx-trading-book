@@ -1,0 +1,35 @@
+{
+  "name": "base-project-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "rinkal",
+  "license": "ISC",
+  "scripts": {
+    "start": "ts-node-dev index.ts --inspect",
+    "build": "tsc index.ts --outDir ./dist --lib es2015"
+  },
+  "dependencies": {
+    "@types/compression": "0.0.36",
+    "@types/cors": "^2.8.4",
+    "@types/express": "^4.16.0",
+    "body-parser": "^1.18.3",
+    "bugsnag": "2.3.1",
+    "compression": "^1.7.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "ts-node-dev": "^1.0.0-pre.32",
+    "typescript": "^3.3.3333"
+  },
+  "devDependencies": {
+    "@angular/compiler": "^6.1.9",
+    "codelyzer": "^4.4.4",
+    "eslint": "3.19.0",
+    "eslint-config-airbnb": "13.0.0",
+    "eslint-plugin-import": "2.13.0",
+    "eslint-plugin-jsx-a11y": "3.0.2",
+    "eslint-plugin-react": "6.10.3",
+    "tslint": "^4.5.0",
+    "typescript-eslint-parser": "^19.0.1"
+  }
+}
