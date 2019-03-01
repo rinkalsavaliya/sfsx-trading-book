@@ -136,6 +136,9 @@ export class DashboardComponent implements OnInit {
         price: this.trade.price, shares: this.trade.shares,
         ticker: this.trade.ticker, timestamp: new Date().toLocaleString()
       };
+      if (oppTradeBook[0].price > this.trade.price) {
+        trade.price = oppTradeBook[0].price;
+      }
       // remainingShares - is rested order's shared - arrived order's trades
       const remainingShares = oppTradeBook[0].shares - this.trade.shares;
       // is remainingShares is less than or equal to zero, that means the rested order will be removed from the book
