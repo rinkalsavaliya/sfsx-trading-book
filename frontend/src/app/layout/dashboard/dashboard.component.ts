@@ -18,7 +18,7 @@ export class DashboardComponent implements OnInit {
   public allTickers = constants.allTickers;
   // declare and initiaze available sides
   public sides = constants.sides;
-  public side = false;
+  public side = true;
   // declare and initiaze trade dtaa
   public trade: TradeSchema = {
     ticker: this.allTickers[0],
