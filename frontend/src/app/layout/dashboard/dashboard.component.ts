@@ -118,6 +118,7 @@ export class DashboardComponent implements OnInit {
   * this function processes the trade
   */
   processTrade(tradeBook: Array<TradeSchema>, oppTradeBook: Array<TradeSchema>, oppReOrderType: string, tradeType: string) {
+    console.log(this.trade, 'trade');
     /*
     * is oppsite side trade book is blank, or
     * for buy trade, latest opp side trade's price is greater than newly arrived trade's price, then add the trade to the trade book
@@ -142,11 +143,13 @@ export class DashboardComponent implements OnInit {
       if (remainingShares <= 0) {
         trade.shares += remainingShares;
         this.trade.shares -= oppTradeBook[0].shares;
+
         // is remainingShares is less than 0, then the extra shares will be added to the book
         if (remainingShares < 0) {
           this.addRestedTrade(tradeBook, this.trade, tradeType);
           this.reOrderTrades(tradeBook, oppReOrderType);
         }
+
         // remove rested order from the opposite side book
         this.removeRestedTrade(oppTradeBook, tradeType);
       } else {
@@ -154,7 +157,7 @@ export class DashboardComponent implements OnInit {
         * if remainingShares is greater than 0, then the arrived order will get executed, for the requested number of shares
         * and we have to modify the order book, as the requested number of shares will be deducted from the top of the book's trade
         */
-        this.modifyChartAndTradingBook(oppTradeBook, this.trade, tradeType);
+        this.modifyChartAndTradingBook(oppTradeBook, this.trade);
       }
       // push the trade to trading log, as the trade MUST be execute
       this.tradingLog.push(trade);
@@ -196,6 +199,7 @@ export class DashboardComponent implements OnInit {
     this.isGraphLoading = true;
     // modify totalPrices
     this.totalPrices[tradeBook[0].price.toString()][graphIndex] -= tradeBook[0].shares;
+    console.log(this.totalPrices, 'price');
     // if totalPrices[trade_price] = 0, remove given graph data for given price
     if (this.totalPrices[tradeBook[0].price.toString()][graphIndex] === 0 && this.totalPrices[tradeBook[0].price.toString()][1 - graphIndex] === 0) {
       const index = this.chartLabels.indexOf(tradeBook[0].price.toString());
@@ -214,14 +218,14 @@ export class DashboardComponent implements OnInit {
   /*
   * function which modifies the trading book, and the chart, in case of partial execution of the trade
   */
-  modifyChartAndTradingBook(tradeBook: Array<TradeSchema>, trade: TradeSchema, tradeType: string) {
+  modifyChartAndTradingBook(tradeBook: Array<TradeSchema>, trade: TradeSchema) {
+    const tradeType = tradeBook[0].side;
     const graphIndex = tradeType === 'buy' ? 0 : 1;
     this.isGraphLoading = true;
     // partial execution is done, so the top of the book's trades are modified
     tradeBook[0].shares -= trade.shares;
-
     // modify the graph data
-    this.totalPrices[tradeBook[0].price.toString()][graphIndex] -= trade.shares;
+    this.totalPrices[tradeBook[0].price.toString()][tradeType] -= trade.shares;
     const index = this.chartLabels.indexOf(tradeBook[0].price.toString());
     this.graphData[graphIndex].data[index] = tradeBook[0].shares;
 
