@@ -8,6 +8,7 @@ import { UiSwitchModule } from 'ngx-toggle-switch';
 */
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
+import { DashboardHelper } from './dashboard.helper';
 
 /**
 * import shared modules
@@ -51,6 +52,7 @@ import { FormsModule } from '@angular/forms';
   providers: [
     MainService,
     AuthService,
+    DashboardHelper
   ],
 })
 /**

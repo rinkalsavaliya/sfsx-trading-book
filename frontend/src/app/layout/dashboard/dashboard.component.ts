@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TradeSchema, GraphDataSchema, TradingLogSchema, Errors, ErrorRules, TradingBookSchama } from './dashboard.interface';
+import { DashboardHelper } from './dashboard.helper';
 import { constants } from '../../shared';
 
 @Component({
@@ -26,36 +27,7 @@ export class DashboardComponent implements OnInit {
     side: 'buy'
   } as TradeSchema;
 
-  // declare and initiaze graph dtaa
-  public graphData: Array<GraphDataSchema> = [
-    { data: [], label: 'buy shares' },
-    { data: [], label: 'sell shares' }
-  ];
   public chartLabels: Array<string> = [];
-  public chartOptions: object = {
-    scales: {
-      /**
-      * make cumstom scales for y axes
-      */
-      yAxes: [{
-        type: 'logarithmic',
-        ticks: {
-          callback: (tick: number) => {
-            return Number(tick.toString());
-          }
-        },
-        afterBuildTicks: (pckBarChart: object & { ticks: Array<number> }) => {
-          pckBarChart.ticks = [];
-          pckBarChart.ticks.push(0);
-          pckBarChart.ticks.push(50);
-          pckBarChart.ticks.push(100);
-          pckBarChart.ticks.push(300);
-          pckBarChart.ticks.push(500);
-          pckBarChart.ticks.push(1000);
-        }
-      }]
-    }
-  };
   // a log of the executed orders
   public tradingLog: Array<TradingLogSchema> = [];
 
@@ -76,14 +48,21 @@ export class DashboardComponent implements OnInit {
   // object to handle all trade tradeValidationErrors
   public tradeValidationErrors: Errors = {};
   public isGraphLoading = false;
-  constructor() {
+  // declare and initiaze graph dtaa
+  public graphData: Array<GraphDataSchema> = [
+    { data: [], label: 'buy shares' },
+    { data: [], label: 'sell shares' }
+  ];
+  constructor(private helper: DashboardHelper) {
     // for all tickers, initiaze the buy and sell trading book values for given ticker
     this.allTickers.forEach((ticker) => {
       this.buyTradingBook[ticker] = [];
       this.sellTradingBook[ticker] = [];
     });
   }
-  ngOnInit() {}
+  ngOnInit() {
+  }
+
 
 
   /**
@@ -139,16 +118,16 @@ export class DashboardComponent implements OnInit {
       if (oppTradeBook[0].price > this.trade.price) {
         trade.price = oppTradeBook[0].price;
       }
-      // remainingShares - is rested order's shared - arrived order's trades
-      const remainingShares = oppTradeBook[0].shares - this.trade.shares;
-      // is remainingShares is less than or equal to zero, that means the rested order will be removed from the book
-      if (remainingShares <= 0) {
-        trade.shares += remainingShares;
+      // rebuyingShares - is rested order's shared - arrived order's trades
+      const rebuyingShares = oppTradeBook[0].shares - this.trade.shares;
+      // is rebuyingShares is less than or equal to zero, that means the rested order will be removed from the book
+      if (rebuyingShares <= 0) {
+        trade.shares += rebuyingShares;
         this.trade.shares -= oppTradeBook[0].shares;
 
         oppTradeBook.shift();
-        // is remainingShares is less than 0, then the extra shares will be added to the book
-        if (remainingShares < 0) {
+        // is rebuyingShares is less than 0, then the extra shares will be added to the book
+        if (rebuyingShares < 0) {
           if (
             oppTradeBook.length !== 0 &&
             (
@@ -166,7 +145,7 @@ export class DashboardComponent implements OnInit {
         // remove rested order from the opposite side book
       } else {
         /*
-        * if remainingShares is greater than 0, then the arrived order will get executed, for the requested number of shares
+        * if rebuyingShares is greater than 0, then the arrived order will get executed, for the requested number of shares
         * and we have to modify the order book, as the requested number of shares will be deducted from the top of the book's trade
         */
         oppTradeBook[0].shares -= trade.shares;
@@ -204,7 +183,8 @@ export class DashboardComponent implements OnInit {
 
     setTimeout(() => {
       this.isGraphLoading = false;
-    });
+      this.helper.initiazeChart(this.graphData, this.chartLabels);
+    }, 10);
   }
 
   initiazeChartLabel(trade: TradeSchema) {
