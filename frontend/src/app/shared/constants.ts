@@ -11,5 +11,7 @@ export const constants = {
   /**
   * API Host Url
   */
-  API_URL: apiUrl
+  API_URL: apiUrl,
+  sides: ['buy', 'sell'],
+  allTickers: ['ZGRO', 'FB', 'ORCL', 'GOOG']
 };

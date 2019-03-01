@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TradeSchema, GraphDataSchema, TradingLogSchema, Errors, ErrorRules, TradingBookSchama } from './dashboard.interface';
+import { constants } from '../../shared';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,9 +15,9 @@ import { TradeSchema, GraphDataSchema, TradingLogSchema, Errors, ErrorRules, Tra
 * and if the trade execution criteria match, execute the trade
 */
 export class DashboardComponent implements OnInit {
-  public allTickers: Array<string> = ['ZGRO', 'FB', 'ORCL', 'GOOG'];
+  public allTickers = constants.allTickers;
   // declare and initiaze available sides
-  public sides: Array<string> = ['buy', 'sell'];
+  public sides = constants.sides;
   public side = false;
   // declare and initiaze trade dtaa
   public trade: TradeSchema = {
@@ -31,24 +32,6 @@ export class DashboardComponent implements OnInit {
     { data: [], label: 'sell shares' }
   ];
   public chartLabels: Array<string> = [];
-  // a log of the executed orders
-  public tradingLog: Array<TradingLogSchema> = [];
-
-  /*
-  * buy and sell trading books will have a structure like this
-  * {
-  *  'ZGRO': Array of trades rested in the book for ZGRO ticker
-  *  'FB': Array of trades rested in the book for FB ticker
-  *  and so on...
-  * }
-  * here, array of trades will be in sorted order of the *price*
-  * for buy trading book, array of trades will be in descending order of their price
-  * for sell trading book, array of trades will be in ascending order of their price
-  */
-  public buyTradingBook: TradingBookSchama = {};
-  public sellTradingBook: TradingBookSchama = {};
-  // object to handle all trade tradeValidationErrors
-  public tradeValidationErrors: Errors = {};
   public chartOptions: object = {
     scales: {
       /**
@@ -66,16 +49,32 @@ export class DashboardComponent implements OnInit {
           pckBarChart.ticks.push(0);
           pckBarChart.ticks.push(50);
           pckBarChart.ticks.push(100);
-          pckBarChart.ticks.push(200);
           pckBarChart.ticks.push(300);
-          pckBarChart.ticks.push(400);
           pckBarChart.ticks.push(500);
           pckBarChart.ticks.push(1000);
-          pckBarChart.ticks.push(5000);
         }
       }]
     }
   };
+  // a log of the executed orders
+  public tradingLog: Array<TradingLogSchema> = [];
+
+
+  /*
+  * buy and sell trading books will have a structure like this
+  * {
+  *  'ZGRO': Array of trades rested in the book for ZGRO ticker
+  *  'FB': Array of trades rested in the book for FB ticker
+  *  and so on...
+  * }
+  * here, array of trades will be in sorted order of the *price*
+  * for buy trading book, array of trades will be in descending order of their price
+  * for sell trading book, array of trades will be in ascending order of their price
+  */
+  public buyTradingBook: TradingBookSchama = {};
+  public sellTradingBook: TradingBookSchama = {};
+  // object to handle all trade tradeValidationErrors
+  public tradeValidationErrors: Errors = {};
   public isGraphLoading = false;
   constructor() {
     // for all tickers, initiaze the buy and sell trading book values for given ticker
@@ -84,8 +83,8 @@ export class DashboardComponent implements OnInit {
       this.sellTradingBook[ticker] = [];
     });
   }
-
   ngOnInit() {}
+
 
   /**
   * detect *enter* event on any input
@@ -96,6 +95,7 @@ export class DashboardComponent implements OnInit {
       this.addTrade();
     }
   }
+
 
   /**
   * add a trade to the trade book, and process it
@@ -112,6 +112,7 @@ export class DashboardComponent implements OnInit {
       this.resetTrade();
     }
   }
+
 
   /**
   * this function processes the trade
@@ -267,7 +268,7 @@ export class DashboardComponent implements OnInit {
     for (const field in ErrorRules) {
       if (this.trade[field]) {
         if (ErrorRules[field].number && (!this.trade[field] || isNaN(this.trade[field]))) {
-          this.tradeValidationErrors[field] = `${field} must be a number`;
+          this.tradeValidationErrors[field] = `${field} must be a positive number`;
           return false;
         }
         if (ErrorRules[field].allowedValues && !ErrorRules[field].allowedValues.includes(this.trade[field])) {

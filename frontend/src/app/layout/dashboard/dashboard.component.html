@@ -2,7 +2,7 @@
   <div class="col-lg-2">
     <fieldset class="form-group">
       <label>SFSX</label>
-      <select class="ui secondary button" [(ngModel)]="trade.ticker">
+      <select class="form-control" [(ngModel)]="trade.ticker">
         <option *ngFor="let ticker of allTickers" value="{{ ticker }}">{{ ticker }}</option>
       </select>
       <p *ngIf="tradeValidationErrors.ticker" class="error">{{ tradeValidationErrors.ticker }}</p>
